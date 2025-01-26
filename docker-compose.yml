@@ -1,11 +1,11 @@
 # set the name for the project
-name: template
+name: recon
 
 services:
-  hostA:
+  client:
     image: netsos/rhit-netsec:latest
-    container_name: hostA
-    hostname: hostA
+    container_name: client
+    hostname: client
     tty: true
     working_dir: /volumes/
     cap_add:
@@ -22,13 +22,13 @@ services:
       echo 'netsec ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers &&
       bash /volumes/check_config.sh &&
       cp /volumes/vimrc /home/netsec/.vimrc &&
-      tail -f /dev/null
+      bash -c /volumes/secret_service.bin || tail -f /dev/null
       "
 
-  hostB:
+  server:
     image: netsos/rhit-netsec:latest
-    container_name: hostB
-    hostname: hostB
+    container_name: server
+    hostname: server
     tty: true
     working_dir: /volumes/
     cap_add:
@@ -45,7 +45,7 @@ services:
       echo 'netsec ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers &&
       bash /volumes/check_config.sh &&
       cp /volumes/vimrc /home/netsec/.vimrc &&
-      tail -f /dev/null
+      bash -c /volumes/secret_service.bin || tail -f /dev/null
       "
 
   attacker:
@@ -60,7 +60,7 @@ services:
       - ./volumes:/volumes
     networks:
       local-net:
-        ipv4_address: 10.10.0.13
+        ipv4_address: 10.10.0.24
     command: >
       bash -c "
       groupadd -g ${GID} netsec_group &&
